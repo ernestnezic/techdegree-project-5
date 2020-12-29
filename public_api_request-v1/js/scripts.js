@@ -8,8 +8,6 @@ const apiUrl = 'https://randomuser.me/api/';
 //Specifying number of users we want to display
 const numberOfUsers = 12;
 
-let closeButton;
-
 
 
 /*************************************************/
@@ -136,15 +134,31 @@ function createModalWindow( userData ) {
                     <p class="modal-text">Birthday: ${birthday}</p>
                 </div>
             </div>
+            <div class="modal-btn-container">
+                    <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+                    <button type="button" id="modal-next" class="modal-next btn">Next</button>
+            </div>
         </div>
     `
     modalContainer.insertAdjacentHTML('beforeend', modalWindow);
     galleryDiv.parentNode.insertBefore(modalContainer, galleryDiv.nextSibling);
 
     //Adding Event Listaner to the Close(X) button so the window can be closed(deleted) once user clicks it
-    closeButton = document.getElementsByTagName('button')[0];
+    const closeButton = document.getElementsByTagName('button')[0];
     closeButton.addEventListener('click', (event) => {
         document.body.removeChild(modalContainer)
+    })
+
+    const prevButton = document.getElementById('modal-prev')
+    prevButton.addEventListener('click', () => {
+        document.body.removeChild(modalContainer)
+        //HOW TO CREATE NEW MODAL WITH PREV?
+    })
+
+    const nextButton = document.getElementById('modal-next')
+    nextButton.addEventListener('click', () => {
+        document.body.removeChild(modalContainer)
+        //HOW TO CREATE NEW MODAL WITH NEXT?
     })
     
 }
