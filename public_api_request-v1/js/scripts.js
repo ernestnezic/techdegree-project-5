@@ -8,13 +8,16 @@ const apiUrl = 'https://randomuser.me/api/';
 //Specifying number of users we want to display
 const numberOfUsers = 12;
 
-
+let responseData;
+let updatedResponseData = [];
 
 /*************************************************/
 //GETTING REFERENCES OF DOM OBJECTS
 /*************************************************/
 
 const galleryDiv = document.getElementById('gallery');
+let modalContainer;
+const searchContainer = document.getElementsByClassName('search-container')[0]
 
 
 
@@ -45,8 +48,8 @@ Promise.all([
     fetchUsers( apiUrl, 12 )
 ])
     .then( (users) => {
-        createHTML( users[0].results );
-        setupModal( users[0].results );
+        responseData = users[0].results
+        filterUsers( responseData );
     })
 
 
@@ -55,9 +58,20 @@ Promise.all([
 //CREATING HTML
 /*************************************************/
 
+//Adding the search button
+searchContainer.insertAdjacentHTML('beforeend', `
+<form action="#" method="get">
+    <input type="search" id="search-input" class="search-input" placeholder="Search...">
+    <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+</form>
+`);
+
+updateSearch();
+
+
 //Creating and showing initial user windows
 function createHTML( jsonData ) {
-    
+
     //Maping through parsed data to create individual user cards
     jsonData.map( (user) => {
         
@@ -65,24 +79,27 @@ function createHTML( jsonData ) {
         let email = user.email
         let city = user.location.city
         let picture = user.picture.large
-        
+
         let cardHtml = `
-            <div class="card">
-                <div class="card-img-container">
-                    <img class="card-img" src=${picture} alt="profile picture">
-                </div>
-                <div class="card-info-container">
-                    <h3 id="name" class="card-name cap">${name}</h3>
-                    <p class="card-text">${email}</p>
-                    <p class="card-text cap">${city}</p>
-                </div>
+        <div class="card">
+            <div class="card-img-container">
+                <img class="card-img" src=${picture} alt="profile picture">
             </div>
+            <div class="card-info-container">
+                <h3 id="name" class="card-name cap">${name}</h3>
+                <p class="card-text">${email}</p>
+                <p class="card-text cap">${city}</p>
+            </div>
+        </div>
         `
 
         galleryDiv.insertAdjacentHTML('beforeend', cardHtml);
         cardHtml = ``;
 
+
     })
+
+    setupModal(updatedResponseData);
 }
 
 
@@ -95,7 +112,7 @@ function setupModal( jsonData ) {
         
         //Adding Event Listeners to each window so it can be clicked to open its modal
         userCards[i].addEventListener('click', (event) => {
-            createModalWindow(jsonData[i])
+            createModalWindow(jsonData, i)
         })
 
     }
@@ -104,9 +121,10 @@ function setupModal( jsonData ) {
 
 
 //Creating the modal window for the requested user
-function createModalWindow( userData ) {
+function createModalWindow( jsonData, user ) {
 
-    const modalContainer = document.createElement('div');
+    const userData = jsonData[user];
+    modalContainer = document.createElement('div');
     modalContainer.className = 'modal-container';
 
     let name = userData.name.first + ' ' + userData.name.last;
@@ -143,22 +161,74 @@ function createModalWindow( userData ) {
     modalContainer.insertAdjacentHTML('beforeend', modalWindow);
     galleryDiv.parentNode.insertBefore(modalContainer, galleryDiv.nextSibling);
 
+    //Calling the function that creates the close, next and previous buttons
+    addModalButtons(user)
+
+    
+}
+
+//Function that adds the 'close button', 'previous button' and 'next button' functionallity
+function addModalButtons (user) {
+    
     //Adding Event Listaner to the Close(X) button so the window can be closed(deleted) once user clicks it
     const closeButton = document.getElementsByTagName('button')[0];
     closeButton.addEventListener('click', (event) => {
         document.body.removeChild(modalContainer)
     })
 
+    //Calls the createModal function on the previous user if the user has a user before to him
     const prevButton = document.getElementById('modal-prev')
-    prevButton.addEventListener('click', () => {
-        document.body.removeChild(modalContainer)
-        //HOW TO CREATE NEW MODAL WITH PREV?
-    })
+    if (user !== 0) { 
+        prevButton.addEventListener('click', () => {
+            document.body.removeChild(modalContainer)
+            createModalWindow(responseData, user-1)
+        })
+    } else {
+        prevButton.disabled = 'true'
+    }
 
+    //Calls the createModal function on the next user if the user has a user after to him
     const nextButton = document.getElementById('modal-next')
-    nextButton.addEventListener('click', () => {
-        document.body.removeChild(modalContainer)
-        //HOW TO CREATE NEW MODAL WITH NEXT?
-    })
+    if (user !== numberOfUsers-1) {
+        nextButton.addEventListener('click', () => {
+            document.body.removeChild(modalContainer)
+            createModalWindow(responseData, user+1)
+        })
+    } else {
+        nextButton.disabled = 'true'
+    }
+
+}
+
+
+//Function that updates the page based on the search requested
+function updateSearch () {
+    searchContainer.firstElementChild.addEventListener('keyup', (event) => {
+        let filterText = document.getElementsByClassName('search-input')[0].value
+        filterUsers(responseData, filterText.toLowerCase())
+    } )
+}
+
+
+//Function to filter users based on the search request
+function filterUsers (responseData, filter) {
+      
+    updatedResponseData = [];
+
+    if ( filter == '' || filter == null ) {
+        updatedResponseData = responseData;       
+    } else {
+        responseData.map( (user) => {
+            
+            let name = user.name.first + ' ' + user.name.last;
+
+            if ( name.toLowerCase().includes(filter) ) {
+                updatedResponseData.push(user)
+            }
+        })
+    }
+
+    galleryDiv.innerHTML = '';
+    createHTML( updatedResponseData )
     
 }
