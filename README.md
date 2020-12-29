@@ -22,3 +22,6 @@ Technologies and concepts used:
 Cross Browser Consistency:
     -Tested in Google Chrome for Mac Version 87.0.4280.88 (Official Build) (x86_64)
     -Tested in Safari for Mac Version 14.0.1
+
+Style changes:
+    -changed body's background color and cards' background colors to green/ light green from white

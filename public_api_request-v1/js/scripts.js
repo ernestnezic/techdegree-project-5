@@ -1,3 +1,10 @@
+/*
+*FSJS Techdegree
+*Project 5: Public API Requests
+*
+*Student: Ernest Nezic
+*/
+
 /*************************************************/
 //DECLARING GLOBAL VARIABLES
 /*************************************************/
@@ -75,10 +82,10 @@ function createHTML( jsonData ) {
     //Maping through parsed data to create individual user cards
     jsonData.map( (user) => {
         
-        let name = user.name.first + ' ' + user.name.last
-        let email = user.email
-        let city = user.location.city
-        let picture = user.picture.large
+        const name = user.name.first + ' ' + user.name.last
+        const email = user.email
+        const city = user.location.city
+        const picture = user.picture.large
 
         let cardHtml = `
         <div class="card">
@@ -106,7 +113,7 @@ function createHTML( jsonData ) {
 //Setting up initial modal window
 function setupModal( jsonData ) {
     
-    let userCards = document.getElementsByClassName('card')
+    const userCards = document.getElementsByClassName('card')
     
     for (let i = 0; i < userCards.length; i++) {
         
@@ -127,14 +134,14 @@ function createModalWindow( jsonData, user ) {
     modalContainer = document.createElement('div');
     modalContainer.className = 'modal-container';
 
-    let name = userData.name.first + ' ' + userData.name.last;
-    let email = userData.email;
-    let city = userData.location.city;
-    let state = userData.location.state;
-    let picture = userData.picture.large;
-    let cell =  userData.cell.substring(0, 5) + " " + userData.cell.substring(6)
-    let adress = userData.location.street.number + ' ' + userData.location.street.name +  ', ' + city + ' ' + state + ', ' + userData.location.postcode;
-    let birthday = userData.dob.date.substring(5, 7) + '/' + userData.dob.date.substring(8, 10) + '/' + userData.dob.date.substring(0, 4);
+    const name = userData.name.first + ' ' + userData.name.last;
+    const email = userData.email;
+    const city = userData.location.city;
+    const state = userData.location.state;
+    const picture = userData.picture.large;
+    const cell =  userData.cell.substring(0, 5) + " " + userData.cell.substring(6)
+    const adress = userData.location.street.number + ' ' + userData.location.street.name +  ', ' + city + ' ' + state + ', ' + userData.location.postcode;
+    const birthday = userData.dob.date.substring(5, 7) + '/' + userData.dob.date.substring(8, 10) + '/' + userData.dob.date.substring(0, 4);
 
     const modalWindow = `
         <div class="modal-container">
@@ -181,7 +188,7 @@ function addModalButtons (user) {
     if (user !== 0) { 
         prevButton.addEventListener('click', () => {
             document.body.removeChild(modalContainer)
-            createModalWindow(responseData, user-1)
+            createModalWindow(updatedResponseData, user-1)
         })
     } else {
         prevButton.disabled = 'true'
@@ -189,10 +196,10 @@ function addModalButtons (user) {
 
     //Calls the createModal function on the next user if the user has a user after to him
     const nextButton = document.getElementById('modal-next')
-    if (user !== numberOfUsers-1) {
+    if (user !== updatedResponseData.length - 1) {
         nextButton.addEventListener('click', () => {
             document.body.removeChild(modalContainer)
-            createModalWindow(responseData, user+1)
+            createModalWindow(updatedResponseData, user+1)
         })
     } else {
         nextButton.disabled = 'true'
@@ -210,25 +217,30 @@ function updateSearch () {
 }
 
 
-//Function to filter users based on the search request
+//Function to filter users based on the search request and append them to new, updated array
 function filterUsers (responseData, filter) {
       
     updatedResponseData = [];
 
+    //If there are no filters applied, we'll use the default array of users
     if ( filter == '' || filter == null ) {
         updatedResponseData = responseData;       
     } else {
         responseData.map( (user) => {
             
-            let name = user.name.first + ' ' + user.name.last;
+            const name = user.name.first + ' ' + user.name.last;
 
+            //Checking if users mathc the search text requested and appending them to the new updated array if they do
             if ( name.toLowerCase().includes(filter) ) {
                 updatedResponseData.push(user)
             }
         })
     }
 
+    //Clearing the gallery div so new data can be displayed
     galleryDiv.innerHTML = '';
+
+    //Creating new display windows based on the updated, filtered user data
     createHTML( updatedResponseData )
     
 }
